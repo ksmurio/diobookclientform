@@ -6,6 +6,7 @@ import '@mdi/font/css/materialdesignicons.css'
 import router from '@/router' ;
 import 'vuetify/styles';
 import { components, directives } from 'vuetify/dist/vuetify.js';
+import '@mdi/font/css/materialdesignicons.css'
 
 const vuetify = createVuetify({
     components,
