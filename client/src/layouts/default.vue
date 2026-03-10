@@ -1,12 +1,11 @@
 
 <template>
   <v-app>
+    <AppHeader />
     <v-main>
       <router-view />      
     </v-main>
-    <v-footer>
-      <AppFooter />
-    </v-footer>
+    <AppFooter />
   </v-app>
 </template>
 

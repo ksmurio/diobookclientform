@@ -1,51 +1,108 @@
 import adminsettings from '../models/adminsettings.js';
 import admins from '../models/admins.js'
 
-const loginAdmin = async (req,res) => {
-    try{
-        const {username, senha} = req.body;
-        const user = await admins.findOne({where:{username}});
+const loginAdmin = async (req, res) => {
+    try {
+        const { username, senha } = req.body;
 
-        if(!user){
-            return res.status(401).json({success:false,message: 'Username ou Senha Incorretos'});
+        if (!username || !senha) {
+            return res.status(400).json({ success: false, message: 'Preencha todos os campos' });
         }
 
-        if(user.senha !== senha){
-            return res.status(401).json({success:false, message: 'Username ou Senha Incorretos'}); //Alterar para virar HASH !!!!importante
-        }else{
-            return res.status(200).json({success:true, message: 'Login bem-sucedido'});
+        const user = await admins.findOne({ where: { username } });
+
+        if (!user || user.senha !== senha) {
+            return res.status(401).json({ success: false, message: 'Username ou Senha Incorretos' });
         }
 
-        if(!passwordMatch){
-            return res.status(401).json({success:false, message: 'Username ou Senha Incorretos'});
-        }
+        return res.status(200).json({ success: true, message: 'Login bem-sucedido', admin: user });
 
-        return res.status(200).json({success:true, message: 'Login bem-sucedido'});
-    }catch(error){
-        return res.status(500).json({success:false, message: 'Erro no servidor'});
+    } catch (error) {
+        return res.status(500).json({ success: false, message: 'Erro no servidor' });
     }
 };
 
 const guardarLinks = async (req, res) => {
     try {
-        const { link_instagram, id_admin } = req.body;
+        let {
+            link_instagram, link_facebook,
+            mostrar_link_instagram, mostrar_link_facebook,
+            id_admin,
+            naotrabalhasabados, naotrabalhadomingos, naotrabalhasegundas,
+            naotrabalhatercas, naotrabalhaQuartas, naotrabalhaQuintas, naotrabalhasextas
+        } = req.body;
 
-        if (!link_instagram) {
-            return res.status(400).json({ success: false, message: 'Link inválido' });
+        if (link_instagram && !link_instagram.startsWith('http://') && !link_instagram.startsWith('https://')) {
+            link_instagram = 'https://' + link_instagram;
         }
+        if (link_facebook && !link_facebook.startsWith('http://') && !link_facebook.startsWith('https://')) {
+            link_facebook = 'https://' + link_facebook;
+        }
+
+        const diasNaoTrabalha = {
+            naotrabalhasabados,
+            naotrabalhadomingos,
+            naotrabalhasegundas,
+            naotrabalhatercas,
+            naotrabalhaQuartas,
+            naotrabalhaQuintas,
+            naotrabalhasextas
+        };
 
         const userExistente = await adminsettings.findOne({ where: { id_admin } });
 
         if (userExistente) {
-            await userExistente.update({ link_instagram });
-            return res.status(200).json({ success: true, message: 'Link atualizado com sucesso' });
+            await userExistente.update({
+                link_instagram,
+                mostrar_link_instagram,
+                link_facebook,
+                mostrar_link_facebook,
+                ...diasNaoTrabalha
+            });
+            return res.status(200).json({ success: true, message: 'Links atualizados com sucesso' });
         } else {
-            await adminsettings.create({ id_admin, link_instagram, mostrar_link_instagram: true });
-            return res.status(201).json({ success: true, message: 'Link guardado com sucesso' });
+            await adminsettings.create({
+                id_admin,
+                link_instagram,
+                mostrar_link_instagram,
+                link_facebook,
+                mostrar_link_facebook,
+                ...diasNaoTrabalha
+            });
+            return res.status(201).json({ success: true, message: 'Links guardados com sucesso' });
         }
     } catch (error) {
         return res.status(500).json({ success: false, message: 'Não foi possível guardar links', error: error.message });
     }
 };
 
-export { loginAdmin, guardarLinks};
+const buscarLinks = async (req, res) => {
+    try {
+        const settings = await adminsettings.findOne({ where: { id_admin: 1 } });
+
+        if (!settings) {
+            return res.status(404).json({ success: false, message: 'Definições não encontradas' });
+        }
+
+        const diasNaoTrabalha = {
+            naotrabalhasabados:  settings.naotrabalhasabados  === 1,
+            naotrabalhadomingos: settings.naotrabalhadomingos === 1,
+            naotrabalhasegundas: settings.naotrabalhasegundas === 1,
+            naotrabalhatercas:   settings.naotrabalhatercas   === 1,
+            naotrabalhaQuartas:  settings.naotrabalhaQuartas  === 1,
+            naotrabalhaQuintas:  settings.naotrabalhaQuintas  === 1,
+            naotrabalhasextas:   settings.naotrabalhasextas   === 1,
+        };
+
+        return res.status(200).json({ 
+            success: true, 
+            data: {
+                ...settings.dataValues, 
+                ...diasNaoTrabalha       
+            }
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: 'Erro ao buscar links' });
+    }
+};
+export { loginAdmin, guardarLinks, buscarLinks };

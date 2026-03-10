@@ -1,7 +1,6 @@
 import { sequelize } from '../config/db.js';
 import { DataTypes } from 'sequelize';
 import dotenv from 'dotenv';
-
 dotenv.config();
 
 const waitinglists = sequelize.define('waitinglists', {
@@ -12,7 +11,7 @@ const waitinglists = sequelize.define('waitinglists', {
         autoIncrement: true,
     },
     observations: {
-        type: DataTypes.STRING(255), 
+        type: DataTypes.STRING(255),
         allowNull: true,
     },
     discontinued: {
@@ -57,29 +56,46 @@ const waitinglists = sequelize.define('waitinglists', {
             key: 'id',
         },
     },
-    nomeCliente:{
+    nomeCliente: {
         type: DataTypes.STRING(255),
         allowNull: false,
     },
-    emailCliente:{
+    emailCliente: {
         type: DataTypes.STRING(255),
     },
-    contribuinteCliente:{
+    contribuinteCliente: {
         type: DataTypes.STRING(255),
     },
     moradaCliente: {
         type: DataTypes.STRING(255),
     },
-    dataMarcacao:{
+    especialidade: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'typeevents',
+            key: 'id',
+        },
+    },
+    seguro: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'typeevents',
+            key: 'id',
+        },
+    },
+    dataMarcacao: {
         type: DataTypes.DATE,
     },
-    seguro:{
-        type: DataTypes.BOOLEAN,
-    }
+    horaMarcacao: {
+        type: DataTypes.STRING(5),
+        allowNull: true,
+    },
 }, {
     tableName: 'waitinglists',
     timestamps: true,
-    underscored: false, // Não converte para snake_case
+    underscored: false,
 });
 
 export default waitinglists;

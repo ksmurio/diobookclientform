@@ -18,13 +18,6 @@ const adminsettings = sequelize.define('adminsettings', {
         },
         onDelete: 'CASCADE',
     },
-    username: {
-        type: DataTypes.STRING(100),
-    },
-    senha: {
-        type: DataTypes.STRING(255),
-        allowNull: false,
-    },
     mostrar_link_instagram: {
         type: DataTypes.TINYINT,
         defaultValue: 0,
@@ -38,6 +31,34 @@ const adminsettings = sequelize.define('adminsettings', {
     },
     link_facebook: {
         type: DataTypes.STRING(255),
+    },
+    naotrabalhasabados: {
+        type: DataTypes.TINYINT,
+        defaultValue: 0,
+    },
+    naotrabalhadomingos: {
+        type: DataTypes.TINYINT,
+        defaultValue: 0,
+    },
+    naotrabalhasegundas: {
+        type: DataTypes.TINYINT,
+        defaultValue: 0,
+    },
+    naotrabalhatercas: {
+        type: DataTypes.TINYINT,
+        defaultValue: 0,
+    },
+    naotrabalhaQuartas: {
+        type: DataTypes.TINYINT,
+        defaultValue: 0,
+    },
+    naotrabalhaQuintas: {
+        type: DataTypes.TINYINT,
+        defaultValue: 0,
+    },
+    naotrabalhasextas: {
+        type: DataTypes.TINYINT,
+        defaultValue: 0,
     },
 }, {
     tableName: 'adminsettings',

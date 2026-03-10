@@ -1,22 +1,19 @@
 import { createApp } from 'vue';
 import { createVuetify } from 'vuetify';
-import App from './App.vue';
-import { registerPlugins } from '@/plugins';
-import '@mdi/font/css/materialdesignicons.css'
-import router from '@/router' ;
-import 'vuetify/styles';
 import { components, directives } from 'vuetify/dist/vuetify.js';
-import '@mdi/font/css/materialdesignicons.css'
+import { createPinia } from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
+import App from './App.vue';
+import router from '@/router';
+import 'vuetify/styles';
+import '@mdi/font/css/materialdesignicons.css';
 
-const vuetify = createVuetify({
-    components,
-    directives,
-})
+const vuetify = createVuetify({ components, directives });
+
+const pinia = createPinia();
 
 const app = createApp(App);
-registerPlugins(app);
-
+app.use(pinia);
 app.use(router);
 app.use(vuetify);
 app.mount('#app');
-

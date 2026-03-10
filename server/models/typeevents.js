@@ -27,7 +27,8 @@ const typeevents = sequelize.define('typeevents', {
     price: {
         type: DataTypes.DECIMAL(10, 2),
         defaultValue: 0.00,
-    },
+    },  
+    
     in_event: {
         type: DataTypes.TINYINT,
         defaultValue: 0,
@@ -64,7 +65,7 @@ const typeevents = sequelize.define('typeevents', {
     },
 }, {
     tableName: 'typeevents',
-    timestamps: true,
+    timestamps: true,  
     underscored: false, // Não converte para snake_case
 });
 
