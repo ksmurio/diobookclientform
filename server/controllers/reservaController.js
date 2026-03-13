@@ -158,7 +158,7 @@ const buscarDisponibilidade = async (req, res) => {
     }
 };
 
-const buscarDisponibilidadeAleatorio = async (req, res) => {
+const buscarDisponibilidadeGeral = async (req, res) => {
     try {
         const eventos = await userevents.findAll({
             attributes: ['id', 'start', 'end', 'TypeeventId'],
@@ -167,10 +167,10 @@ const buscarDisponibilidadeAleatorio = async (req, res) => {
         const resultado = eventos.map(e => {
             const startStr = e.start || '';
             const partes = startStr.split(' ');
-
             const data = partes[0].split('T')[0];
             const horaInicio = partes.length > 1
-                ? partes[partes.length - 1].substring(0, 5) : startStr.substring(11, 16);
+                ? partes[partes.length - 1].substring(0, 5)
+                : startStr.substring(11, 16);
 
             return {
                 id: e.id,
@@ -178,13 +178,14 @@ const buscarDisponibilidadeAleatorio = async (req, res) => {
                 data,
                 horaInicio,
             };
-            res.status(200).json({ success: true, data: resultado });
-        })
+        }); 
+
+        res.status(200).json({ success: true, data: resultado }); 
     } catch (error) {
-        console.log(error)
+        console.log(error);
         res.status(500).json({ success: false, message: 'Erro ao buscar eventos' });
     }
-}
+};
 
 const listarEspecialidades = async (req, res) => {
     try {
@@ -207,4 +208,4 @@ const listarSeguros = async (req, res) => {
     }
 };
 
-export { adicionarReserva, novaMarcacao, listarMarcacoes, horasOcupadas, listarEspecialidades, listarSeguros, buscarDisponibilidade };
+export { adicionarReserva, novaMarcacao, listarMarcacoes, horasOcupadas, listarEspecialidades, buscarDisponibilidadeGeral, listarSeguros, buscarDisponibilidade };

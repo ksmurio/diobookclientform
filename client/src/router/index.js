@@ -1,9 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
-import index from '../pages/index.vue';
+import reservaNormal from '../pages/reservaNormal.vue';
 import loginAdmin from '../pages/loginAdmin.vue';
 import adminPage from '../pages/adminPage.vue';
 import DefaultLayout from '../layouts/default.vue';
+import index from '../pages/index.vue'
+import ReservaRapida from '@/pages/reservaRapida.vue';
+import profissionalIndiferente  from '../pages/profissionalIndiferente.vue';
 
 const routes = [
     {
@@ -15,6 +18,21 @@ const routes = [
                 component: index,
             }
         ]
+    },
+    {
+        path: '/reservaNormal',
+        name: '/reservaNormal',
+        component: reservaNormal,
+    },
+    {
+        path: '/reservaRapida',
+        name: '/reservaRapida',
+        component: ReservaRapida,
+    },
+        {
+        path: '/profissionalIndiferente',
+        name: '/profissionalIndiferente',
+        component: profissionalIndiferente,
     },
     {
         path: '/loginAdmin',

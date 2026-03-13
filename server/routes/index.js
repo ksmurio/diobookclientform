@@ -6,6 +6,7 @@ import {
     listarMarcacoes,
     horasOcupadas,
     buscarDisponibilidade,
+    buscarDisponibilidadeGeral,
     novaMarcacao,
 } from '../controllers/reservaController.js';
 import { loginAdmin, guardarLinks, buscarLinks } from '../controllers/formularioController.js';
@@ -23,5 +24,6 @@ router.post('/loginAdmin', loginAdmin);
 router.post('/adminPage', guardarLinks);
 router.get('/adminPage', buscarLinks);
 router.get('/buscarLinks', buscarLinks);
+router.get('/buscarDisponibilidadesGeral', buscarDisponibilidadeGeral);
 
 export default router;
