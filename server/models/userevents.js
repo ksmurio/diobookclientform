@@ -60,6 +60,9 @@ const userevents = sequelize.define('userevents', {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
     },
+    telemovel: {
+        type: DataTypes.STRING(36)
+    }
 }, {
     tableName: 'userevents',
     timestamps: true,

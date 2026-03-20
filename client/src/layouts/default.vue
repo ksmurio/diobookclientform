@@ -2,7 +2,7 @@
 <template>
   <v-app>
     <AppHeader />
-    <v-main>
+    <v-main class="app">
       <router-view />      
     </v-main>
     <AppFooter />
@@ -11,3 +11,6 @@
 
 <script setup>
 </script>
+
+<style>
+</style>

@@ -4,35 +4,22 @@ import reservaNormal from '../pages/reservaNormal.vue';
 import loginAdmin from '../pages/loginAdmin.vue';
 import adminPage from '../pages/adminPage.vue';
 import DefaultLayout from '../layouts/default.vue';
-import index from '../pages/index.vue'
-import ReservaRapida from '@/pages/reservaRapida.vue';
-import profissionalIndiferente  from '../pages/profissionalIndiferente.vue';
+import index from '../pages/index.vue';
 
 const routes = [
     {
-        path: '',
+        path: '/',
         component: DefaultLayout,
         children: [
             {
                 path: '',
                 component: index,
-            }
+            },
+            {
+                path: 'reservaNormal',
+                component: reservaNormal,
+            },
         ]
-    },
-    {
-        path: '/reservaNormal',
-        name: '/reservaNormal',
-        component: reservaNormal,
-    },
-    {
-        path: '/reservaRapida',
-        name: '/reservaRapida',
-        component: ReservaRapida,
-    },
-        {
-        path: '/profissionalIndiferente',
-        name: '/profissionalIndiferente',
-        component: profissionalIndiferente,
     },
     {
         path: '/loginAdmin',
@@ -61,4 +48,4 @@ router.beforeEach((to, from, next) => {
     }
 });
 
-export default router;  
+export default router;

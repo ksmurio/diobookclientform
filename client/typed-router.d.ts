@@ -44,23 +44,9 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/profissionalIndiferente': RouteRecordInfo<
-      '/profissionalIndiferente',
-      '/profissionalIndiferente',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
     '/reservaNormal': RouteRecordInfo<
       '/reservaNormal',
       '/reservaNormal',
-      Record<never, never>,
-      Record<never, never>,
-      | never
-    >,
-    '/reservaRapida': RouteRecordInfo<
-      '/reservaRapida',
-      '/reservaRapida',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -96,21 +82,9 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'src/pages/profissionalIndiferente.vue': {
-      routes:
-        | '/profissionalIndiferente'
-      views:
-        | never
-    }
     'src/pages/reservaNormal.vue': {
       routes:
         | '/reservaNormal'
-      views:
-        | never
-    }
-    'src/pages/reservaRapida.vue': {
-      routes:
-        | '/reservaRapida'
       views:
         | never
     }

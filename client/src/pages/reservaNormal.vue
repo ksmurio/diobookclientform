@@ -1,51 +1,67 @@
 <template>
-    <v-container class="mt-5" max-width="600">
+    <v-container class="mt-5 cardReserva">
         <v-card>
             <v-card-title class="text-center">
                 <h1>Fazer Reserva</h1>
             </v-card-title>
-
             <v-progress-linear :model-value="(currentStep / totalSteps) * 100" color="#64942e" height="6"
                 class="mb-2" />
             <v-card-subtitle class="text-center mb-2">
                 Passo {{ currentStep }} de {{ totalSteps }}
             </v-card-subtitle>
-
             <v-card-text>
                 <v-form v-model="valid" validate-on="blur">
-
                     <div v-show="currentStep === 1">
                         <v-text-field v-model="nomeCliente" label="Nome" validate-on="blur" variant="outlined"
                             required />
-                        <v-text-field v-model="emailCliente" label="Email" validate-on="blur" variant="outlined"
-                            required />
-                    </div>
-
-                    <div v-show="currentStep === 2">
+                        <v-text-field v-model="emailCliente" label="Email" validate-on="blur" type="email"
+                            variant="outlined" required />
+                        <v-text-field v-model="telemovel" label="Telemovel" validade-on="blur" type="tel"
+                            variant="outlined" required />
                         <v-text-field v-model="contribuinteCliente" label="Contribuinte" type="number"
                             validate-on="blur" variant="outlined" />
-                        <v-text-field v-model="moradaCliente" label="Morada" variant="outlined" />
                     </div>
-
-                    <div v-show="currentStep === 3">
+                    <div v-show="currentStep === 2">
                         <v-select v-model="especialidade" :items="especialidades" item-title="name" item-value="id"
-                            :return-object="false" label="Especialidade" variant="outlined" required />
-                        <v-select v-model="seguroSelecionado" :items="seguros" item-title="name" item-value="id"
-                            :return-object="false" label="Seguro" variant="outlined" required />
+                            :return-object="false" label="Especialidade" variant="outlined" required
+                            @update:model-value="listarFuncionarios" />
+                        <v-select v-model="funcionario" :items="funcionarios" item-title="name" item-value="id"
+                            :return-object="false" label="Técnico" variant="outlined"
+                            @update:model-value="listarFuncionarios">
+                            <template v-slot:item="{ item, props }">
+                                <v-list-item v-bind="props" :prepend-avatar="item.raw.img"></v-list-item>
+                            </template>
+                        </v-select>
+                        <!--<v-select v-model="seguroSelecionado" :items="seguros" item-title="name" item-value="id"
+                            :return-object="false" label="Seguro" variant="outlined" required />-->
                     </div>
-
-                    <div v-show="currentStep === 4">
+                    <div v-show="currentStep === 3">
                         <p class="mb-1 text-caption text-medium-emphasis">Seleciona uma data</p>
                         <v-date-picker v-model="dataSelecionada" :allowed-dates="allowedDates" color="#64942e"
                             show-adjacent-months elevation="0" class="w-100 mb-4" />
-
                         <v-alert v-if="erroDia" type="error" density="compact" class="mb-3">
                             {{ erroDia }}
                         </v-alert>
-
                         <v-select v-model="horaSelecionada" :items="horasDisponiveis" label="Hora" variant="outlined" />
                     </div>
-
+                    <div v-show="currentStep === 4">
+                        <h1 class="text-center mb-5">Confirmar Marcação</h1>
+                        <v-row class="justify-center">
+                            <v-col cols="9">
+                                <v-list>
+                                    <v-list-item title="Nome" prepend-icon="mdi-account">{{ nomeCliente }}</v-list-item>
+                                    <v-list-item title="Email" prepend-icon="mdi-email"> {{ emailCliente }}</v-list-item>
+                                    <v-list-item title="telemovel" prepend-icon="mdi-phone">{{ telemovel }}</v-list-item>
+                                    <v-list-item title="Contribuinte"  prepend-icon="mdi-account-details" > {{ contribuinteCliente }}</v-list-item>
+                                    <v-list-item title="Especialidade" prepend-icon="mdi-stethoscope">{{ especialidades.find(e => e.id === especialidade)?.name}}</v-list-item>
+                                    <v-list-item title="Funcionario" prepend-icon="mdi-account-tie"> {{ funcionarios.find(f => f.id === funcionario)?.name }}</v-list-item>
+                                    <v-list-item title="Data" prepend-icon="mdi-calendar"> {{  dataSelecionada ? new Date(dataSelecionada).toLocaleDateString('pt-PT') : '' }}</v-list-item>
+                                    <v-list-item title="Hora" prepend-icon="mdi-clock">{{ horaSelecionada }}</v-list-item>
+                                </v-list>
+                            </v-col>
+                        </v-row>
+                    </div>
+                    <v-progress-circular v-if="loading" indeterminate color="#64942e" />
                     <v-row class="mt-4">
                         <v-col>
                             <v-btn v-if="currentStep > 1" @click="currentStep--; mensagem = ''" variant="outlined"
@@ -62,9 +78,7 @@
                             </v-btn>
                         </v-col>
                     </v-row>
-
                 </v-form>
-
                 <v-alert v-if="mensagem" :type="sucesso ? 'success' : 'error'" class="mt-4">
                     {{ mensagem }}
                 </v-alert>
@@ -75,6 +89,9 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 const valid = ref(false);
 const currentStep = ref(1);
@@ -85,17 +102,21 @@ const emailCliente = ref('');
 const contribuinteCliente = ref('');
 const moradaCliente = ref('');
 const especialidade = ref('');
+const funcionario = ref('');
 const seguroSelecionado = ref('');
 const dataSelecionada = ref('');
 const horaSelecionada = ref('');
 const mensagem = ref('');
 const sucesso = ref(false);
 const especialidades = ref([]);
+const funcionarios = ref([]);
 const seguros = ref([]);
 const todasHoras = ref([]);
 const horasDisponiveis = ref([]);
 const datasOcupadas = ref([]);
 const erroDia = ref('');
+const telemovel = ref('');
+let loading = ref(false);
 
 const diasNaoTrabalha = ref({
     naotrabalhasabados: false,
@@ -116,12 +137,12 @@ const allowedDates = (date) => {
 };
 
 const avancar = () => {
-    if (currentStep.value === 1 && (!nomeCliente.value || !emailCliente.value)) {
-        mensagem.value = 'Preencha o nome e o email para continuar.';
+    if (currentStep.value === 1 && (!nomeCliente.value || !emailCliente.value || !telemovel.value)) {
+        mensagem.value = 'Preencha o nome, email e telemovel para continuar.';
         sucesso.value = false;
         return;
     }
-    if (currentStep.value === 3 && (!especialidade.value || !seguroSelecionado.value)) {
+    if (currentStep.value === 2 && (!especialidade.value)) {
         mensagem.value = 'Selecione a especialidade e o seguro para continuar.';
         sucesso.value = false;
         return;
@@ -140,10 +161,37 @@ const gerarHoras = (inicio, fim) => {
     horasDisponiveis.value = [...todasHoras.value];
 };
 
-const buscarDatasOcupadas = async () => {
-    if (!especialidade.value) return;
+const buscarDatasOcupadas = async (funcionarioId) => {
+    if (!funcionarioId) return;
     try {
-        const response = await fetch(`/api/buscarDisponibilidades?TypeeventId=${especialidade.value}`);
+        const response = await fetch(`/api/buscarDisponibilidade?funcionario=${funcionarioId}`);
+        const data = await response.json();
+
+        if (!data.success || !data.data) return;
+
+        const eventos = data.data;
+        const ocupadasPorDia = {};
+        eventos.forEach(evento => {
+            const dia = evento.data;
+            if (!ocupadasPorDia[dia]) ocupadasPorDia[dia] = [];
+            ocupadasPorDia[dia].push(evento.horaInicio);
+        });
+
+        datasOcupadas.value = Object.keys(ocupadasPorDia).filter(dia =>
+            todasHoras.value.every(hora => ocupadasPorDia[dia].includes(hora))
+        );
+
+
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+
+const buscarDatasOcupadasGeral = async (especialidadeId) => {
+    if (!especialidadeId) return;
+    try {
+        const response = await fetch(`/api/buscarDisponibilidadeGeral?especialidade=${especialidadeId}`);
         const data = await response.json();
         const eventos = data.data;
 
@@ -190,10 +238,16 @@ const verificarDia = async () => {
     erroDia.value = '';
 
     try {
-        const response = await fetch(`/api/horasOcupadas?data=${dataFormatada}&especialidadeId=${especialidade.value}`);
+        let url;
+        if (funcionario.value) {
+            url = `/api/horasOcupadas?data=${dataFormatada}&userId=${funcionario.value}`;
+        } else {
+            url = `/api/horasOcupadasGeral?data=${dataFormatada}&especialidade=${especialidade.value}`;
+        }
+
+        const response = await fetch(url);
         const data = await response.json();
-        const ocupadas = data.data;
-        horasDisponiveis.value = todasHoras.value.filter(h => !ocupadas.includes(h));
+        horasDisponiveis.value = todasHoras.value.filter(h => !data.data.includes(h));
     } catch (error) {
         console.log(error);
         horasDisponiveis.value = [...todasHoras.value];
@@ -221,6 +275,7 @@ const carregarDefinicoes = async () => {
 };
 
 const adicionarReserva = async () => {
+    loading = true;
     if (erroDia.value) return;
 
     const dataFormatada = dataSelecionada.value
@@ -228,6 +283,7 @@ const adicionarReserva = async () => {
         : null;
 
     try {
+
         const response = await fetch('/api/adicionarReserva', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -240,6 +296,8 @@ const adicionarReserva = async () => {
                 seguro: seguroSelecionado.value,
                 dataMarcacao: dataFormatada,
                 horaMarcacao: horaSelecionada.value,
+                userId: funcionario.value,
+                telemovel: telemovel.value,
             })
         });
         const data = await response.json();
@@ -247,19 +305,33 @@ const adicionarReserva = async () => {
         mensagem.value = data.message;
 
         if (data.success) {
+            loading = false;
             horaSelecionada.value = '';
-            await verificarDia();
-            await buscarDatasOcupadas();
             setTimeout(() => {
                 mensagem.value = '';
                 sucesso.value = false;
+                router.push('/');
             }, 4000);
         }
-        setTimeout(() => {
-            router.push('/');
-        }, 1000)
     } catch (error) {
-        mensagem.value = 'Erro ao fazer reserva. Verifique os dados e tente novamente.';
+        mensagem.value = `Erro ao fazer reserva. Verifique os dados e tente novamente. ${error}`;
+    }
+};
+
+
+const listarFuncionarios = async () => {
+    try {
+        const response = await fetch(`/api/listarFuncionarios?especialidade=${especialidade.value}`);
+        const data = await response.json();
+        if (!data.data || data.data.length === 0) {
+            funcionarios.value = [];
+            mensagem.value = 'Não há funcionários nesta especialidade';
+            return;
+        }
+        funcionarios.value = data.data;
+        mensagem.value = '';
+    } catch (error) {
+        mensagem.value = `Erro ao listar funcionários: ${error.message}`;
     }
 };
 
@@ -285,15 +357,23 @@ const listarSeguros = async () => {
 
 watch(especialidade, async (novo) => {
     if (novo) {
-        await buscarDatasOcupadas();
+        funcionario.value = '';
+        funcionarios.value = [];
+        await listarFuncionarios();
+        await buscarDatasOcupadasGeral(novo);
         dataSelecionada.value = '';
         horasDisponiveis.value = [...todasHoras.value];
     }
 });
 
-watch(seguroSelecionado, () => {
+watch(funcionario, async (novo) => {
     dataSelecionada.value = '';
     horasDisponiveis.value = [...todasHoras.value];
+    if (novo) {
+        await buscarDatasOcupadas(novo);
+    } else {
+        await buscarDatasOcupadasGeral(especialidade.value);
+    }
 });
 
 watch(dataSelecionada, async (novaData) => {
@@ -303,8 +383,15 @@ watch(dataSelecionada, async (novaData) => {
 }, { immediate: true });
 
 watch(currentStep, async (novoStep) => {
-    if (novoStep === 4 && dataSelecionada.value) {
-        await verificarDia();
+    if (novoStep === 4) {
+        if (funcionario.value) {
+            await buscarDatasOcupadas(funcionario.value);
+        } else {
+            await buscarDatasOcupadasGeral(especialidade.value);
+        }
+        if (dataSelecionada.value) {
+            await verificarDia();
+        }
     }
 });
 
@@ -321,10 +408,6 @@ h1 {
     color: #64942e;
 }
 
-.v-text-field:hover {
-    color: orange;
-}
-
 .v-btn {
     background-color: #64942e;
     color: white;
@@ -333,5 +416,10 @@ h1 {
 .v-btn:hover {
     color: white;
     background-color: orange;
+}
+
+.cardReserva{
+    height: 100vh;
+    width: 100vw;
 }
 </style>

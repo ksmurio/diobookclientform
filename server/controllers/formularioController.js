@@ -1,5 +1,9 @@
 import adminsettings from '../models/adminsettings.js';
-import admins from '../models/admins.js'
+import admins from '../models/admins.js';
+import users from '../models/users.js';
+import bcryptjs from 'bcryptjs';
+import { Sequelize } from 'sequelize';
+import sequelize from '../config/db.js';
 
 const loginAdmin = async (req, res) => {
     try {
@@ -85,24 +89,80 @@ const buscarLinks = async (req, res) => {
         }
 
         const diasNaoTrabalha = {
-            naotrabalhasabados:  settings.naotrabalhasabados  === 1,
+            naotrabalhasabados: settings.naotrabalhasabados === 1,
             naotrabalhadomingos: settings.naotrabalhadomingos === 1,
             naotrabalhasegundas: settings.naotrabalhasegundas === 1,
-            naotrabalhatercas:   settings.naotrabalhatercas   === 1,
-            naotrabalhaQuartas:  settings.naotrabalhaQuartas  === 1,
-            naotrabalhaQuintas:  settings.naotrabalhaQuintas  === 1,
-            naotrabalhasextas:   settings.naotrabalhasextas   === 1,
+            naotrabalhatercas: settings.naotrabalhatercas === 1,
+            naotrabalhaQuartas: settings.naotrabalhaQuartas === 1,
+            naotrabalhaQuintas: settings.naotrabalhaQuintas === 1,
+            naotrabalhasextas: settings.naotrabalhasextas === 1,
         };
 
-        return res.status(200).json({ 
-            success: true, 
+        return res.status(200).json({
+            success: true,
             data: {
-                ...settings.dataValues, 
-                ...diasNaoTrabalha       
+                ...settings.dataValues,
+                ...diasNaoTrabalha
             }
         });
     } catch (error) {
         return res.status(500).json({ success: false, message: 'Erro ao buscar links' });
     }
 };
-export { loginAdmin, guardarLinks, buscarLinks };
+
+const adicionarNovoAdmin = async (req, res) => {
+    const { nome, password, especialidade, img, color } = req.body;
+    try {
+        if (!nome || !password || !especialidade) {
+            return res.status(400).json({
+                success: false, 
+                message: 'Nome, password e especialidade são obrigatórios'
+            });
+        }
+
+        const buscarAdmin = await users.findOne({ where: { name: nome } });
+        if (buscarAdmin) {
+            return res.status(400).json({
+                success: false, 
+                message: 'Nome já utilizado'
+            });
+        }
+        const hashedPassword = await bcryptjs.hash(password, 10);
+
+        const novoAdmin = await users.create({
+            name: nome,
+            userName: nome,
+            password: hashedPassword,
+            especialidade,
+            img: img || null,
+            color: color,
+            role: 'admin',
+            permission_group: 1
+        });
+
+        return res.status(201).json({
+            success: true, 
+            message: 'Admin criado com sucesso',
+            data: novoAdmin
+        });
+    } catch (error) {
+        console.log('Erro ao criar admin:', error);
+        return res.status(500).json({
+            success: false, 
+            message: 'Erro ao criar admin',
+            error: error.errors
+        });
+    }
+};
+
+const listarAdmins = async (req, res) => {
+    try {
+        const admins = await users.findAll({ where: { role: 'admin', ativo: 1 } });
+        return res.status(200).json({ success: true, data: admins });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: 'Não foi possível listar funcionários', error: error.message });
+    }
+};
+
+export { loginAdmin, guardarLinks, buscarLinks, adicionarNovoAdmin, listarAdmins };
+
